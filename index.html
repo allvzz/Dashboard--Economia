@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <link rel="stylesheet" href="css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Financeira</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js">
+    <style>
+        .card {
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .summary-card {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+        }
+        .btn-add {
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">Minha Carteira</a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row">
+            <!-- Cards de Resumo -->
+            <div class="col-md-4">
+                <div class="card summary-card">
+                    <div class="card-body">
+                        <h5 class="card-title">Patrimônio Total</h5>
+                        <h3 class="card-text" id="patrimonioTotal">R$ 150.000,00</h3>
+                        <button class="btn btn-light btn-sm mt-2" data-bs-toggle="modal" data-bs-target="#editarPatrimonioModal">
+                            Editar Patrimônio
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card summary-card">
+                    <div class="card-body">
+                        <h5 class="card-title">Rendimento Mensal</h5>
+                        <h3 class="card-text">R$ 2.500,00</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card summary-card">
+                    <div class="card-body">
+                        <h5 class="card-title">Economia Mensal</h5>
+                        <h3 class="card-text">R$ 1.800,00</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Gráfico de Composição da Carteira -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Composição da Carteira</h5>
+                        <canvas id="portfolioChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráfico de Evolução Patrimonial -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Evolução Patrimonial</h5>
+                        <canvas id="wealthChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Tabela de Ativos -->
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Meus Investimentos</h5>
+                        <button class="btn btn-success btn-add" data-bs-toggle="modal" data-bs-target="#adicionarAtivoModal">
+                            Adicionar Novo Ativo
+                        </button>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Ativo</th>
+                                        <th>Quantidade</th>
+                                        <th>Preço Médio</th>
+                                        <th>Valor Atual</th>
+                                        <th>Rentabilidade</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>PETR4</td>
+                                        <td>100</td>
+                                        <td>R$ 28,50</td>
+                                        <td>R$ 32,40</td>
+                                        <td class="text-success">+13,68%</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-primary" onclick="abrirModalEditarAtivo('PETR4')">Editar</button>
+                                            <button class="btn btn-sm btn-danger" onclick="excluirAtivo('PETR4')">Excluir</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>ITUB4</td>
+                                        <td>200</td>
+                                        <td>R$ 24,30</td>
+                                        <td>R$ 25,80</td>
+                                        <td class="text-success">+6,17%</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-primary" onclick="abrirModalEditarAtivo('ITUB4')">Editar</button>
+                                            <button class="btn btn-sm btn-danger" onclick="excluirAtivo('ITUB4')">Excluir</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Patrimônio Imobiliário -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Patrimônio Imobiliário</h5>
+                        <button class="btn btn-success btn-add" data-bs-toggle="modal" data-bs-target="#adicionarImovelModal">
+                            Adicionar Novo Imóvel
+                        </button>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Descrição</th>
+                                        <th>Endereço</th>
+                                        <th>Valor de Mercado</th>
+                                        <th>Renda Mensal</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabelaImoveis">
+                                    <!-- Dados serão inseridos via JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Editar Patrimônio -->
+    <div class="modal fade" id="editarPatrimonioModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Editar Patrimônio</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formEditarPatrimonio">
+                        <div class="mb-3">
+                            <label class="form-label">Novo Valor do Patrimônio</label>
+                            <input type="number" name="novoPatrimonio" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Adicionar Ativo -->
+    <div class="modal fade" id="adicionarAtivoModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Adicionar Novo Ativo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formAdicionarAtivo">
+                        <div class="mb-3">
+                            <label class="form-label">Código do Ativo</label>
+                            <input type="text" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Quantidade</label>
+                            <input type="number" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Preço Médio</label>
+                            <input type="number" class="form-control" step="0.01" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Adicionar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Editar Ativo -->
+    <div class="modal fade" id="editarAtivoModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Editar Ativo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formEditarAtivo">
+                        <div class="mb-3">
+                            <label class="form-label">Código do Ativo</label>
+                            <input type="text" name="nome" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Quantidade</label>
+                            <input type="number" name="quantidade" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Preço Médio</label>
+                            <input type="number" name="precoMedio" class="form-control" step="0.01" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Adicionar Imóvel -->
+    <div class="modal fade" id="adicionarImovelModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Adicionar Novo Imóvel</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formAdicionarImovel">
+                        <div class="mb-3">
+                            <label class="form-label">Descrição</label>
+                            <input type="text" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Endereço</label>
+                            <input type="text" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Valor de Mercado</label>
+                            <input type="number" class="form-control" step="0.01" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Renda Mensal</label>
+                            <input type="number" class="form-control" step="0.01" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Adicionar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Gráfico de Composição da Carteira
+        const portfolioCtx = document.getElementById('portfolioChart').getContext('2d');
+        new Chart(portfolioCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Ações', 'Renda Fixa', 'Fundos Imobiliários', 'Tesouro Direto'],
+                datasets: [{
+                    data: [40, 30, 20, 10],
+                    backgroundColor: ['#4CAF50', '#2196F3', '#FFC107', '#9C27B0']
+                }]
+            }
+        });
+
+        // Gráfico de Evolução Patrimonial
+        const wealthCtx = document.getElementById('wealthChart').getContext('2d');
+        new Chart(wealthCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+                datasets: [{
+                    label: 'Patrimônio Total',
+                    data: [120000, 125000, 128000, 135000, 142000, 150000],
+                    borderColor: '#4CAF50',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: false
+                    }
+                }
+            }
+        });
+    </script>
+    <script src="js/script.js"></script>
+</body>
+</html>
+
+<footer class="text-center mt-4 mb-2">
+    <small class="text-muted">&copy; Dev - Alvaro 2025</small>
+</footer>
